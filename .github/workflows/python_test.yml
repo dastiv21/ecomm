@@ -1,32 +1,46 @@
-name: Test Application
+name: CI
 
 on:
   push:
-    branches:
-      - main  # Replace with your default branch name
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'  # Specify your Python version
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Run Django migrations
-        run: |
-          python manage.py migrate
+    - name: Run migrations
+      run: |
+        python manage.py migrate --noinput
 
-      - name: Run tests
-        run: |
-          pytest tests/
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=. --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}  # Replace with your Codecov token if using Codecov
+        file: ./coverage.xml
+        fail_ci_if_error: true
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage.xml
