@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
@@ -30,17 +30,10 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        pytest --cov=. --cov-report=xml
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}  # Replace with your Codecov token if using Codecov
-        file: ./coverage.xml
-        fail_ci_if_error: true
+        python run_coverage.py
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
-        path: coverage.xml
+        path: push_reports/coverage_report.html
