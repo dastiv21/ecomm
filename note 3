@@ -1,0 +1,62 @@
+You're absolutely correct! The use case emphasizes **integrating PyTest into CI/CD pipelines**, so the prompts should focus more on **CI/CD pipeline automation and testing integration** rather than solely writing tests with PyTest. Here's a revised set of **7 progressive prompts**, ensuring they align better with the **CI/CD-focused** intent:
+
+---
+
+### **Prompt 1 (5 Constraints): Setting Up Basic CI/CD Workflow with PyTest**
+1. Configure a GitHub Actions or similar CI/CD pipeline to run automated workflows for the Django project.
+2. Install dependencies in the pipeline, including PyTest, Django, and database drivers.
+3. Set up the CI pipeline to run migrations using Django’s test database during the build process.
+4. Ensure the pipeline detects and executes all test cases in the `tests` directory using PyTest.
+5. Configure the pipeline to produce a basic success/failure report upon test completion.
+
+---
+
+### **Prompt 2 (4 Constraints): Introducing Test Coverage in the CI Pipeline**
+1. Extend the CI/CD pipeline to include `pytest-cov` for generating a test coverage report.
+2. Set a minimum coverage threshold (e.g., 80%) that will fail the pipeline if not met.
+3. Configure the CI pipeline to output the test coverage report as an artifact.
+4. Exclude non-critical files (e.g., `migrations`, `manage.py`) from the coverage report to focus on application logic.
+
+---
+
+### **Prompt 3 (4 Constraints): Database Isolation in CI Environments**
+1. Modify the CI pipeline to spin up an isolated PostgreSQL (or the app's database) instance using a containerized approach (e.g., Docker).
+2. Ensure the test database is correctly migrated and cleaned before each test run.
+3. Validate that the CI pipeline runs database-related tests without relying on local developer setups.
+4. Add a rollback mechanism to clean up database changes after each test in the pipeline.
+
+---
+
+### **Prompt 4 (4 Constraints): Role-Based Testing in the CI/CD Pipeline**
+1. Write test cases to validate role-based access control (e.g., `admin`, `guest`) using PyTest fixtures.
+2. Automate the CI/CD pipeline to simulate role-based behaviors during API testing.
+3. Ensure authentication mechanisms (e.g., token-based authentication) are tested as part of the pipeline.
+4. Fail the pipeline if unauthorized actions (e.g., a `guest` trying to delete an `Order`) are allowed.
+
+---
+
+### **Prompt 5 (4 Constraints): Performance and Parallel Testing in CI/CD**
+1. Add support for parallel test execution in the CI/CD pipeline using `pytest-xdist`.
+2. Set up markers (e.g., `@pytest.mark.performance`) to separate performance tests from functional tests.
+3. Introduce a CI/CD stage specifically for performance testing, validating API response times under load.
+4. Ensure logs and metrics (e.g., response times, database query counts) are captured and analyzed as part of the pipeline.
+
+---
+
+### **Prompt 6 (4 Constraints): Continuous Deployment Integration**
+1. Extend the pipeline to automatically deploy to a staging environment if all tests pass.
+2. Configure environment variables securely in the pipeline for staging (e.g., database credentials, API keys).
+3. Automate health checks post-deployment to ensure the staging environment is functional.
+4. Rollback the deployment if health checks fail or errors are detected in the logs.
+
+---
+
+### **Prompt 7 (4 Constraints): Advanced Pipeline Reporting and Notifications**
+1. Integrate notifications (e.g., Slack, email) into the CI/CD pipeline to alert developers of test results.
+2. Generate and publish detailed test reports (e.g., HTML reports from `pytest-html`) as part of the pipeline output.
+3. Add monitoring to the pipeline to track trends in test success rates, coverage percentages, and execution times.
+4. Schedule periodic full CI/CD runs (e.g., nightly builds) to catch regressions and track long-term stability.
+
+---
+
+These prompts now balance PyTest's role as a **testing framework** with its integration into **CI/CD workflows**, focusing on automating, reporting, and scaling testing processes within the pipeline. This better reflects the use case where CI/CD is the central theme.

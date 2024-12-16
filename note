@@ -1,0 +1,61 @@
+Here are **7 progressive prompts** for the task, starting with a non-code-generating prompt and progressively building towards more detailed coding assistance:
+
+---
+
+### **Prompt 1 (Non-Code-Generating)**
+**Topic:** Understanding PyTest and CI/CD Integration
+- Explain the benefits of integrating the PyTest framework into CI/CD pipelines for automated testing.
+- Discuss how this approach ensures code quality and stability in large-scale web application development.
+- Provide examples of popular CI/CD tools that can integrate with PyTest.
+
+---
+
+### **Prompt 2**
+**Topic:** Setting up a PyTest Test Suite
+- Provide an example of setting up a basic PyTest test suite for a Python web application.
+- Include a test case that validates a function (e.g., a function that calculates discounts for an e-commerce app).
+- Explain how the test cases can be written to assert the expected outcomes of the function.
+
+---
+
+### **Prompt 3**
+**Topic:** Configuring PyTest for CI/CD
+- Show how to structure a Python project for seamless integration with a CI/CD pipeline using PyTest.
+- Explain how to add a `pytest.ini` configuration file for controlling test behavior (e.g., setting log levels or adding markers).
+- Highlight how to exclude specific tests from the CI/CD pipeline using markers or configuration options.
+
+---
+
+### **Prompt 4**
+**Topic:** Integrating PyTest with GitHub Actions
+- Demonstrate how to integrate PyTest into a CI/CD pipeline using GitHub Actions.
+- Provide an example of a YAML configuration file to automatically run PyTest whenever a commit is pushed to the repository.
+- Include steps to fail the pipeline if any test fails and notify the developers.
+
+---
+
+### **Prompt 5**
+**Topic:** Adding Coverage Reporting to PyTest in CI/CD
+- Show how to enhance PyTest in the pipeline by adding code coverage reporting using the `pytest-cov` plugin.
+- Explain how to configure the pipeline to generate a coverage report and fail if the coverage falls below a threshold (e.g., 80%).
+- Provide an example of a modified CI/CD YAML configuration file for this purpose.
+
+---
+
+### **Prompt 6**
+**Topic:** Parallelizing Tests in PyTest for CI/CD Efficiency
+- Explain how to optimize CI/CD pipelines by running PyTest test cases in parallel.
+- Provide an example using the `pytest-xdist` plugin for parallel execution.
+- Demonstrate how to adjust the CI/CD pipeline configuration to utilize multiple CPU cores during the testing phase.
+
+---
+
+### **Prompt 7**
+**Topic:** Debugging Failed Tests in CI/CD Pipelines
+- Describe how developers can debug failed PyTest tests in a CI/CD pipeline.
+- Provide an example of capturing detailed logs and artifacts (e.g., test reports or logs) during pipeline execution.
+- Explain how to use pipeline tools like GitHub Actions, Jenkins, or GitLab CI to re-run specific failing tests.
+
+---
+
+This progression begins with a conceptual understanding and gradually dives into practical code and CI/CD pipeline configurations, offering a complete learning path for the topic.

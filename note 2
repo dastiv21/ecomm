@@ -1,0 +1,62 @@
+Here are **7 progressive prompts** for integrating Python's PyTest framework into a CI/CD pipeline based on your Django e-commerce app. The first prompt has **5 constraints**, while subsequent prompts have **4 constraints** each.
+
+---
+
+### **Prompt 1 (5 Constraints): Basic Setup for PyTest Integration**
+1. Set up PyTest for the Django project, ensuring it can discover and run tests in the application’s `tests` directory.
+2. Create a basic test suite for the `Category` model, verifying CRUD operations.
+3. Configure a `pytest.ini` file to specify settings such as test discovery paths and markers.
+4. Use the Django test database to isolate tests from production data.
+5. Add initial tests to validate the API endpoints for `Category` (e.g., ensuring `GET`, `POST`, `PUT`, and `DELETE` work correctly).
+
+---
+
+### **Prompt 2 (4 Constraints): Writing Tests for the Product Model**
+1. Develop a test suite for the `Product` model, verifying CRUD operations and relationships with the `Category` model.
+2. Write tests for the `Product` API endpoints, including filtering by `name`, `description`, and ordering by `price`.
+3. Mock file uploads for the `image` field in `Product` to ensure compatibility during testing.
+4. Ensure test coverage is tracked for the `Product` model and its associated API endpoints.
+
+---
+
+### **Prompt 3 (4 Constraints): Testing User Authentication**
+1. Add tests for user authentication, ensuring proper access control to the API endpoints (e.g., unauthenticated users cannot create or update resources).
+2. Test token-based authentication (if enabled) to ensure valid tokens are required to access protected endpoints.
+3. Verify the behavior of permissions, particularly the `IsAdminUserOrReadOnly` permission for the `Order` API.
+4. Simulate different user roles (e.g., `admin`, `guest`) in tests to validate role-specific API behavior.
+
+---
+
+### **Prompt 4 (4 Constraints): Order Model and API Testing**
+1. Write a test suite for the `Order` model, focusing on the many-to-many relationship with `Product`.
+2. Add tests for the `Order` API endpoints, ensuring accurate calculations of `total_price` during order creation.
+3. Validate search and filtering functionality for `Order` API, such as filtering orders by `user` or `product`.
+4. Test the behavior of the `perform_create` method in `OrderViewSet` to ensure it correctly assigns the `created_by` user.
+
+---
+
+### **Prompt 5 (4 Constraints): Advanced PyTest Features**
+1. Use PyTest fixtures to set up reusable test data (e.g., pre-populated `Category`, `Product`, and `Order` instances).
+2. Parametrize tests to validate different combinations of input data for the API endpoints.
+3. Introduce marks to classify tests (e.g., `@pytest.mark.slow` for tests that involve multiple database operations).
+4. Enable parallel test execution with `pytest-xdist` to speed up test runs.
+
+---
+
+### **Prompt 6 (4 Constraints): Integration with CI/CD Pipeline**
+1. Configure a GitHub Actions workflow to automatically run PyTest whenever code is pushed or a pull request is created.
+2. Ensure the pipeline uses a separate test database and correctly migrates schemas before running tests.
+3. Fail the CI pipeline if any test fails, and output detailed error logs for debugging.
+4. Add a step in the CI pipeline to generate a test coverage report and upload it as an artifact.
+
+---
+
+### **Prompt 7 (4 Constraints): Optimizing and Scaling Testing**
+1. Integrate PyTest with tools like `pytest-django` to simplify Django-specific testing needs.
+2. Use tools like `pytest-cov` to enforce minimum coverage thresholds in the CI pipeline.
+3. Split the test suite into smaller groups (e.g., unit tests, integration tests) for more targeted CI workflows.
+4. Schedule periodic full test runs (e.g., nightly) to identify long-term regressions in the codebase.
+
+---
+
+These prompts progressively address the integration of PyTest in a Django e-commerce application, covering model testing, API validation, advanced PyTest features, and CI/CD pipeline integration.
