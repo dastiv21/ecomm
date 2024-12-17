@@ -120,7 +120,7 @@ def test_order_creation(api_client, create_admin_user, create_user,
 @pytest.mark.django_db
 def test_user_registration(api_client):
     data = {
-        "username": "newuser",
+        # "username": "newuser",
         "email": "newuser@example.com",
         "password": "password",
     }
