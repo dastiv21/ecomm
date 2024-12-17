@@ -122,7 +122,7 @@ def test_user_registration(api_client):
     data = {
         # "username": "newuser",
         "email": "newuser@example.com",
-        "password": "password",
+        # "password": "password",
     }
     response = api_client.post(reverse("register"), data)
     assert response.status_code == status.HTTP_201_CREATED
