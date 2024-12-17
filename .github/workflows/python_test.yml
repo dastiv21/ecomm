@@ -3,17 +3,11 @@ name: CI
 on:
   push:
     paths:
-      - 'commerce/**'
-      - 'tests/**'
+      - '**.py'
       - 'requirements.txt'
       - '.github/workflows/ci.yml'
     branches: [ main ]
   pull_request:
-    paths:
-      - 'commerce/**'
-      - 'tests/**'
-      - 'requirements.txt'
-      - '.github/workflows/ci.yml'
     branches: [ main ]
 
 jobs:
