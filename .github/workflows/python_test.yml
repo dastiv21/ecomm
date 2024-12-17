@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
@@ -31,15 +31,13 @@ jobs:
     - name: Run tests with coverage
       run: |
         python run_coverage.py
-      continue-on-error: true
+      continue-on-error: true  # Allow the workflow to continue even if the coverage script fails
 
-    - name: Check coverage
-      if: ${{ failure() || success() }}
+    - name: Check test coverage
       run: |
-        coverage_threshold=$(python -c "import os; print(os.getenv('COVERAGE_THRESHOLD', '80'))")
-        coverage_percentage=$(cat coverage.xml | grep -oP '(?<=lines-covered=")[^"]*' | head -1)
-        if (( $(echo "$coverage_percentage < $coverage_threshold" | bc -l) )); then
-          echo "Coverage ($coverage_percentage%) is below the minimum threshold ($coverage_threshold%)."
+        coverage_percentage=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); coverage = tree.getroot().find('coverage'); print(coverage.attrib['lines-covered'] / coverage.attrib['lines-valid'] * 100)")
+        if (( $(echo "$coverage_percentage < 80" | bc -l) )); then
+          echo "Coverage (${coverage_percentage}%) is below the minimum threshold (80%)."
           exit 1
         fi
 
@@ -49,7 +47,14 @@ jobs:
         name: coverage-report
         path: push_reports/coverage_report.html
 
-    - name: Notify on failure
-      if: ${{ failure() }}
-      run: |
-        curl -X POST -H "Content-Type: application/json" -d '{"text": "CI/CD pipeline failed. Please check the logs for details."}' https://hooks.slack.com/services/your-slack-webhook-url
+    - name: Notify code maintainer on failure
+      if: failure()  # Run this step only if any previous step failed
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: your-slack-channel-name  # Replace with your Slack channel name
+        SLACK_COLOR: '#ff0000'  # Red color for failure notifications
+        SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+        SLACK_MESSAGE: 'CI/CD workflow failed. Please check the logs for details.'
+        SLACK_TITLE: 'CI/CD Workflow Failure'
+        SLACK_USERNAME: GitHub Actions
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}  # Replace with your Slack webhook URL
