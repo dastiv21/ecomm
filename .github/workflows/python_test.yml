@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
@@ -31,9 +31,42 @@ jobs:
     - name: Run tests with coverage
       run: |
         python run_coverage.py
+      continue-on-error: true  # Allow the workflow to continue even if the coverage script fails
 
     - name: Upload coverage report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: coverage-report
         path: push_reports/coverage_report.html
+      if: always()  # Upload the coverage report regardless of the previous step's outcome
+
+    - name: Check test results
+      run: |
+        if [[ ${{ steps.test_with_coverage.outcome }} == 'failure' ]]; then
+          echo "Tests failed. Exiting with failure."
+          exit 1
+        fi
+      if: steps.test_with_coverage.outcome == 'failure'  # Fail the workflow if tests failed
+
+    - name: Check coverage results
+      run: |
+        if [[ ${{ steps.test_with_coverage.outcome }} == 'success' && $(cat coverage.xml | grep "line-rate" | awk -F '>' '{print $2}' | awk -F '<' '{print $1}') < 0.80 ]]; then
+          echo "Coverage below 80%. Exiting with failure."
+          exit 1
+        fi
+      if: steps.test_with_coverage.outcome == 'success'  # Fail the workflow if coverage is below 80%
+
+    - name: Notify maintainer
+      uses: dawidd6/action-send-mail@v3
+      if: failure()  # Send email notification only if the workflow fails
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: CI/CD Workflow Failed
+        to: maintainer@example.com
+        from: CI/CD Bot <noreply@example.com>
+        body: |
+          The CI/CD workflow for the e-commerce app has failed.
+          Please check the logs for more details.

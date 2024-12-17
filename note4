@@ -1,0 +1,239 @@
+Now, lets improve the pytest code for the app. Here is my codebase:
+
+
+My codebase this task will be based on is a django e-commerce app: here is the codebase:
+
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Order #{self.id}'
+
+
+# commerce.urls
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import CategoryViewSet, ProductViewSet, OrderViewSet
+
+router = DefaultRouter()
+router.register('categories', CategoryViewSet)
+router.register('products', ProductViewSet)
+router.register('orders', OrderViewSet)
+
+urlpatterns = [
+    path('', include(router.urls)),
+path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+]
+
+# views.py
+from rest_framework import viewsets, permissions, filters
+from .models import Category, Product, Order
+from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
+from .permissions import IsAdminUserOrReadOnly
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Username already exists'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=username, email=email,
+                                        password=password)
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return Response({'error': 'Invalid credentials'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'stock']
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['user__username', 'products__name']
+    ordering_fields = ['total_price', 'created_at']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+# serializers.py
+
+from rest_framework import serializers
+from .models import Category, Product, Order
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+# permissions.py
+
+from rest_framework import permissions
+
+class IsAdminUserOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.is_staff and request.user.is_superuser
+
+
+and here is my pytest code so far:
+
+import pytest
+from django.urls import reverse
+from rest_framework.test import APIClient
+from rest_framework import status
+from commerce.models import Category, Product, Order
+from django.contrib.auth.models import User
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+@pytest.fixture
+def create_admin_user():
+    admin_user = User.objects.create_superuser(username="admin", email="admin@example.com", password="password", is_superuser=True, is_staff=True)
+    return admin_user
+
+@pytest.fixture
+def create_user():
+    user = User.objects.create_user(username="user", email="user@example.com", password="password")
+    return user
+
+@pytest.fixture
+def create_category():
+    category = Category.objects.create(name="Test Category")
+    return category
+
+@pytest.fixture
+def create_product(create_category, create_user):
+    product = Product.objects.create(
+        name="Test Product",
+        description="Test Description",
+        price=99.99,
+        stock=10,
+        category=create_category,
+        created_by=create_user,
+    )
+    return product
+
+@pytest.mark.django_db
+def test_category_list(api_client, create_category):
+    response = api_client.get(reverse("category-list"))
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) > 0
+
+@pytest.mark.django_db
+def test_category_creation(api_client, create_admin_user):
+    api_client.force_authenticate(user=create_admin_user)
+    data = {"name": "New Category"}
+    response = api_client.post(reverse("category-list"), data)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Category.objects.filter(name="New Category").exists()
+
+@pytest.mark.django_db
+def test_product_list(api_client, create_product):
+    response = api_client.get(reverse("product-list"))
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) > 0
+
+@pytest.mark.django_db
+def test_product_creation(api_client, create_admin_user, create_category):
+    api_client.force_authenticate(user=create_admin_user)
+    data = {
+        "name": "Another Product",
+        "description": "Another Description",
+        "price": "49.99",
+        "stock": 5,
+        "category": create_category.id,
+        "created_by":create_admin_user.id
+    }
+    response = api_client.post(reverse("product-list"), data)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Product.objects.filter(name="Another Product").exists()
+
+
+Now, implement some additional test cases for the app, Add the login and register test case, and optimized the test cases to use pytest fixtures where necessary. for the login test, validate that a token is received after a successful login, and for register, validate the data returned matches the expected output
